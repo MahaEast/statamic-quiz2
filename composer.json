@@ -1,0 +1,19 @@
+{
+    "name": "tv2east/quiz",
+    "description": "A simple quiz addon for statamic",
+    "type": "composer-plugin",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Tv2east\\Quiz\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "MahaEast",
+            "email": "maha@tv2east.dk"
+        }
+    ],
+    "minimum-stability": "alpha",
+    "require": {}
+}
