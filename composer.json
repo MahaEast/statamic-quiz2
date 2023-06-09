@@ -15,5 +15,16 @@
         }
     ],
     "minimum-stability": "alpha",
+    "extra": {
+        "statamic": {
+            "name": "Statamic quiz-addon",
+            "description": "Statamic quiz-addon"
+        },
+        "laravel": {
+            "providers": [
+                "Tv2east\\Quiz\\ServiceProvider"
+            ]
+        }
+    },
     "require": {}
 }
