@@ -1,11 +1,11 @@
 {
     "name": "tv2east/quiz",
-    "description": "A simple quiz addon for statamic",
+    "description": "A simple quiz addon for Statamic",
     "type": "composer-plugin",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Tv2east\\Quiz\\": "src/"
+            "Statamic\\Addons\\Quiz\\": "src/"
         }
     },
     "authors": [
@@ -15,18 +15,19 @@
         }
     ],
     "minimum-stability": "alpha",
+    "require": {
+        "composer-plugin-api": "^1.1"
+    },
     "extra": {
-        "class": "Tv2east\\Quiz\\ServiceProvider",
+        "class": "Statamic\\Addons\\Quiz\\ServiceProvider",
         "statamic": {
             "name": "Statamic quiz-addon",
             "description": "Statamic quiz-addon"
         },
         "laravel": {
             "providers": [
-                "Tv2east\\Quiz\\ServiceProvider"
+                "Statamic\\Addons\\Quiz\\ServiceProvider"
             ]
         }
-    },
-    "require": {}
+    }
 }
-
