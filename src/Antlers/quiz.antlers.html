@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="{{ site:short_locale }}">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title ?? site:name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="w-3/4 md:w-1/2 m-auto">
+<h1 class="text-4xl mb-5 mt-5">{{ title }}</h1>
+<section>{{ content }}</section>
+<h2 class="text-3xl mb-2 mt-5" id="main-title">Loading the quiz..</h2>
+<div id="contender" class="mt-2 mb-5"></div>
+
+<div id="myElement" data-csrf-token="{{ csrf_token }}"></div>
+<div id="questions">
+    <!-- appended -->
+</div>
+<button id="reviewButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-5" onclick="sendAnswers();">Send my answers</button>
+<div id="options">
+    <!-- appended -->
+</div>
+<script src="{{ mix src='/js/site.js' }}"></script>
+</body>
+</html>
+<style>
+    .selected {
+        font-weight: bold;
+    }
+</style>
+<script type="application/javascript">
+    const json = {{ quiz_addon_field_field }};
+    //console.log(json);
+    const answerArray = [];
+    const appendStatistics = [];
+    if (json) {
+        document.getElementById('main-title').innerHTML = json[1][0];
+        const contender = document.getElementById('contender');
+        if (json[1][3]) {
+            contender.innerHTML = contender.innerHTML + "<div class='mt-5 p-5 rounded-xl bg-blue-300'><span>To participate in the competition, please enter your email below.</span><div><input id='usermail-input' class='mt-2 block w-full rounded-md pl-2 py-1.5 text-gray-900 shadow-none placeholder:text-gray-400 sm:text-sm sm:leading-6' type='text' placeholder='Skriv din e-mail'/></div></div>";
+        }
+
+        for (let i = 0; i < json[0].length; i++) {
+            appendKnownData(json[0][i], i);
+        }
+
+        function appendKnownData(obj, i) {
+            const appending = document.getElementById('questions');
+            const q_element =
+                "<div class='mt-2 pb-5 row-'"+obj.value+"><b>" +
+                obj.value+ "</b></div>";
+
+            appending.innerHTML = appending.innerHTML + q_element;
+            for (let i = 0; i < obj.subInputFields.length; i++) {
+                appending.innerHTML = appending.innerHTML + '<div id="'+(i +1)+obj.value.replace(/\s/g,'').toLowerCase()+'" class="pl-5 pr-5 pb-5 cursor-pointer hover:underline '+(i +1) +' ' +obj.value.replace(/\s/g,'').toLowerCase()+'" onclick="appendTheAnswer(\'' + obj.value + '\',\'' + obj.subInputFields[i].text + '\',\''+(i + 1)+'\')">' + (i + 1) + '. ' + obj.subInputFields[i].text + '</div>';
+            }
+        }
+
+        function appendTheAnswer(question, answer, int) {
+            let textClass = question.replace(/\s/g,'').toLowerCase();
+            let allClasses = document.getElementsByClassName(textClass);
+            for (let i = 0; i < allClasses.length; i++) {
+                allClasses[i].classList.remove("selected");
+            }
+            let createId = document.getElementById(int+textClass);
+            createId.classList.add("selected")
+            const t = [{question: question}, {answer: answer}];
+            if (answerArray.length >= 1) {
+                for (let i = 0; i < answerArray.length; i++) {
+                    if (answerArray[i][0].question === t[0].question) {
+                        answerArray.splice(i, 1)
+                    }
+                }
+            }
+            answerArray.push(t);
+        }
+
+        function sendAnswers() {
+            if(answerArray.length >= 1) {
+                document.getElementById('reviewButton').remove();
+                saveAnswers();
+            }else {
+                const options = document.getElementById('options');
+                options.innerHTML =  "<div class='mt-5 text-red-600'><b class='text-xl'>You have to answer at least one question!</b></div>";
+            }
+        }
+
+        function saveAnswers() {
+
+            const options = document.getElementById('options');
+            if (json[1][4]) {
+                options.innerHTML = '<div class="mt-5 p-5 rounded bg-green-200">'+json[1][1]+'</div>';
+            }
+            if (json[1][2]) {
+                options.innerHTML = options.innerHTML + "<div class='mt-5'><b class='text-xl'>Review your answers here.</b></div>";
+                for (let i = 0; i < answerArray.length; i++) {
+                    options.innerHTML = options.innerHTML + "<div class='pt-2'><b>" + answerArray[i][0].question + " : </b>" + answerArray[i][1].answer + "</div>";
+                }
+            }
+
+            for (let i = 0; i < answerArray.length; i++) {
+                appendStatistics.push(answerArray[i][1].answer);
+            }
+            const usermailInput = document.getElementById('usermail-input').value;
+            const id = "{{ id }}";
+            const userSend = {
+                "usermail": usermailInput,
+                "answers": appendStatistics,
+                "IP": "Not allowed",
+                "Device": navigator.userAgent,
+                "Date": Date.now(),
+                "id": id
+            };
+
+            var csrfToken = document.getElementById('myElement').dataset.csrfToken;
+
+            fetch('/update-value', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify( userSend )
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }
+</script>

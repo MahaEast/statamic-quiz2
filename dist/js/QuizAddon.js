@@ -99,8 +99,146 @@ __webpack_require__.r(__webpack_exports__);
   mixins: [Fieldtype],
   data: function data() {
     return {
-      //
+      title: "",
+      summaryCheckbox: false,
+      usermailCheckbox: false,
+      showmessageCheckbox: false,
+      message: "",
+      inputFields: [{
+        value: '',
+        subInputFields: [{
+          text: ''
+        }],
+        selectedOption: null
+      }],
+      answers: [],
+      collectedFieldsToData: [],
+      optionsArray: [],
+      downloadString: ""
     };
+  },
+  mounted: function mounted() {
+    //const entryId = window.location.pathname.split('/')[2];
+    var knownData = JSON.parse(this._props.value);
+    if (knownData) {
+      this.inputFields = [];
+      for (var i = 0; i < knownData[0].length; i++) {
+        this.appendKnownData(knownData[0][i], i);
+      }
+      for (var _i = 0; _i < knownData[1].length; _i++) {
+        this.appendKnownDataSettings(knownData[1][_i], _i);
+      }
+      for (var _i2 = 0; _i2 < knownData[2].length; _i2++) {
+        this.answers.push(knownData[2][_i2]);
+        this.downloadString = this.downloadString + knownData[2][_i2].usermail + "\n" + knownData[2][_i2].Date + "\n" + knownData[2][_i2].Device + "\n" + knownData[2][_i2].IP + "\n" + knownData[2][_i2].id + "\n" + knownData[2][_i2].answers + "\n\n";
+      }
+    } else {
+      this.inputFields = [];
+    }
+  },
+  methods: {
+    addInputField: function addInputField() {
+      this.inputFields.push({
+        value: "",
+        subInputFields: [{
+          text: ''
+        }],
+        selectedOption: null
+      });
+    },
+    addSubInputField: function addSubInputField(index) {
+      var selectedOptionIndex = this.inputFields[index].selectedOption;
+      var selectedOption = this.inputFields[index].subInputFields[selectedOptionIndex];
+      this.inputFields[index].subInputFields.push({
+        text: ''
+      });
+    },
+    saveColletedData: function saveColletedData() {
+      if (this.title && this.message) {
+        this.optionsArray.push(this.title, this.message, this.summaryCheckbox, this.usermailCheckbox, this.showmessageCheckbox);
+        this.collectedFieldsToData.push(this.inputFields);
+        this.collectedFieldsToData.push(this.optionsArray);
+        this.collectedFieldsToData.push(this.answers);
+
+        /*axios.get("/save-a-quiz")
+            .then(response => this.totalVuePackages = response.data.total);*/
+
+        var json = JSON.stringify(this.collectedFieldsToData);
+        var jsonInput = document.getElementById('json');
+        jsonInput.click();
+        jsonInput.focus();
+        jsonInput.value = json;
+        jsonInput.dispatchEvent(new Event('input'));
+        this.$toast.success('Updated quiz');
+      } else {
+        this.$toast.error('Required fields are missing content');
+      }
+    },
+    appendKnownDataSettings: function appendKnownDataSettings(obj, i) {
+      switch (i) {
+        case 0:
+          // title
+          this.title = obj;
+          var a = document.getElementById('quiz-title');
+          a.click();
+          a.focus();
+          a.value = obj;
+          a.dispatchEvent(new Event('change'));
+          break;
+        case 1:
+          // message
+          this.message = obj;
+          var b = document.getElementById('quiz-message');
+          b.click();
+          b.focus();
+          b.value = obj;
+          b.dispatchEvent(new Event('change'));
+          break;
+        case 2:
+          this.summaryCheckbox = obj;
+          var c = document.getElementById('quiz-checkbox-summary');
+          c.checked = obj;
+          c.dispatchEvent(new Event('change'));
+          break;
+        case 3:
+          // usermail
+          this.usermailCheckbox = obj;
+          var d = document.getElementById('quiz-checkbox-usermail');
+          d.checked = obj;
+          d.dispatchEvent(new Event('change'));
+          break;
+        case 4:
+          //quiz-summary
+          this.showmessageCheckbox = obj;
+          var e = document.getElementById('quiz-checkbox-message');
+          e.checked = obj;
+          e.dispatchEvent(new Event('change'));
+          break;
+        default:
+        // code block
+      }
+    },
+    appendKnownData: function appendKnownData(obj, i) {
+      this.inputFields.push({
+        value: obj.value,
+        subInputFields: obj.subInputFields,
+        selectedOption: obj.selectedOption
+      });
+    },
+    createTextFile: function createTextFile() {
+      var text = this.downloadString;
+      var filename = 'participants.txt';
+      var blob = new Blob([text], {
+        type: 'text/plain'
+      });
+      var url = window.URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      this.$toast.success('Created file with quiz data');
+    }
   }
 });
 
@@ -120,14 +258,284 @@ __webpack_require__.r(__webpack_exports__);
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("text-input", {
+  return _c("div", [_c("div", {
+    staticClass: "main-options"
+  }, [_c("div", {
+    staticClass: "hidden"
+  }, [_c("label", [_vm._v("Json string")]), _vm._v(" "), _c("text-input", {
+    staticStyle: {
+      opacity: "0.5"
+    },
     attrs: {
-      value: _vm.value
+      readonly: "",
+      id: "json",
+      value: _vm.value,
+      placeholder: "json string"
     },
     on: {
       input: _vm.update
     }
-  })], 1);
+  })], 1), _vm._v(" "), _c("div", {
+    staticClass: "mt-2 mb-2"
+  }, [_c("label", [_vm._v("Quiz title")]), _vm._v(" "), _c("input", {
+    staticClass: "input-text",
+    attrs: {
+      id: "quiz-title",
+      type: "text",
+      placeholder: "Quiz title"
+    },
+    on: {
+      keyup: function keyup($event) {
+        _vm.title = $event.target.value;
+      }
+    }
+  })])]), _vm._v(" "), _c("div", {
+    staticClass: "main-settings"
+  }, [_c("div", {
+    staticClass: "mt-2 mb-2 flex"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.summaryCheckbox,
+      expression: "summaryCheckbox"
+    }],
+    staticClass: "pr-2",
+    attrs: {
+      type: "checkbox",
+      id: "quiz-checkbox-summary"
+    },
+    domProps: {
+      checked: Array.isArray(_vm.summaryCheckbox) ? _vm._i(_vm.summaryCheckbox, null) > -1 : _vm.summaryCheckbox
+    },
+    on: {
+      change: function change($event) {
+        var $$a = _vm.summaryCheckbox,
+          $$el = $event.target,
+          $$c = $$el.checked ? true : false;
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$el.checked) {
+            $$i < 0 && (_vm.summaryCheckbox = $$a.concat([$$v]));
+          } else {
+            $$i > -1 && (_vm.summaryCheckbox = $$a.slice(0, $$i).concat($$a.slice($$i + 1)));
+          }
+        } else {
+          _vm.summaryCheckbox = $$c;
+        }
+      }
+    }
+  }), _vm._v(" "), _c("label", {
+    attrs: {
+      "for": "quiz-checkbox-summary"
+    }
+  }, [_vm._v("Show user summary? ("), _c("i", [_vm._v(_vm._s(_vm.summaryCheckbox))]), _vm._v(")")])]), _vm._v(" "), _c("div", {
+    staticClass: "mt-2 mb-2 flex"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.usermailCheckbox,
+      expression: "usermailCheckbox"
+    }],
+    staticClass: "pr-2",
+    attrs: {
+      type: "checkbox",
+      id: "quiz-checkbox-usermail"
+    },
+    domProps: {
+      checked: Array.isArray(_vm.usermailCheckbox) ? _vm._i(_vm.usermailCheckbox, null) > -1 : _vm.usermailCheckbox
+    },
+    on: {
+      change: function change($event) {
+        var $$a = _vm.usermailCheckbox,
+          $$el = $event.target,
+          $$c = $$el.checked ? true : false;
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$el.checked) {
+            $$i < 0 && (_vm.usermailCheckbox = $$a.concat([$$v]));
+          } else {
+            $$i > -1 && (_vm.usermailCheckbox = $$a.slice(0, $$i).concat($$a.slice($$i + 1)));
+          }
+        } else {
+          _vm.usermailCheckbox = $$c;
+        }
+      }
+    }
+  }), _vm._v(" "), _c("label", {
+    attrs: {
+      "for": "checkbox"
+    }
+  }, [_vm._v("Require user email? ("), _c("i", [_vm._v(_vm._s(_vm.usermailCheckbox))]), _vm._v(")")])]), _vm._v(" "), _c("div", {
+    staticClass: "mt-2 mb-2"
+  }, [_c("div", {
+    staticClass: "flex"
+  }, [_c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.showmessageCheckbox,
+      expression: "showmessageCheckbox"
+    }],
+    staticClass: "pr-2",
+    attrs: {
+      type: "checkbox",
+      id: "quiz-checkbox-message"
+    },
+    domProps: {
+      checked: Array.isArray(_vm.showmessageCheckbox) ? _vm._i(_vm.showmessageCheckbox, null) > -1 : _vm.showmessageCheckbox
+    },
+    on: {
+      change: function change($event) {
+        var $$a = _vm.showmessageCheckbox,
+          $$el = $event.target,
+          $$c = $$el.checked ? true : false;
+        if (Array.isArray($$a)) {
+          var $$v = null,
+            $$i = _vm._i($$a, $$v);
+          if ($$el.checked) {
+            $$i < 0 && (_vm.showmessageCheckbox = $$a.concat([$$v]));
+          } else {
+            $$i > -1 && (_vm.showmessageCheckbox = $$a.slice(0, $$i).concat($$a.slice($$i + 1)));
+          }
+        } else {
+          _vm.showmessageCheckbox = $$c;
+        }
+      }
+    }
+  }), _vm._v(" "), _c("label", {
+    attrs: {
+      "for": "checkbox"
+    }
+  }, [_vm._v("Show specific message when quiz is done? ("), _c("i", [_vm._v(_vm._s(_vm.showmessageCheckbox))]), _vm._v(")")])]), _vm._v(" "), _c("div", {
+    staticClass: "mt-2"
+  }, [_c("label", [_vm._v("Message")]), _vm._v(" "), _c("textarea", {
+    staticClass: "input-text",
+    attrs: {
+      id: "quiz-message"
+    },
+    on: {
+      keyup: function keyup($event) {
+        _vm.message = $event.target.value;
+      }
+    }
+  })])])]), _vm._v(" "), _vm._l(_vm.inputFields, function (inputField, index) {
+    return _c("div", {
+      key: index,
+      staticClass: "quiz-elements-wrap border-2 rounded p-2 mt-2"
+    }, [_c("div", [_c("div", {
+      staticClass: "mt-2 mb-2"
+    }, [_c("label", [_c("b", [_vm._v("(" + _vm._s(index + 1) + ")")]), _vm._v(" Quiz question")]), _vm._v(" "), _c("input", {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: inputField.value,
+        expression: "inputField.value"
+      }],
+      staticClass: "input-text",
+      attrs: {
+        type: "text",
+        placeholder: "Question"
+      },
+      domProps: {
+        value: inputField.value
+      },
+      on: {
+        input: function input($event) {
+          if ($event.target.composing) return;
+          _vm.$set(inputField, "value", $event.target.value);
+        }
+      }
+    })])]), _vm._v(" "), _vm._l(inputField.subInputFields, function (subInputField, subIndex) {
+      return _c("div", {
+        key: subIndex
+      }, [_c("div", {
+        staticClass: "mt-2 mb-2 border-2 rounded p-2"
+      }, [_c("label", [_c("b", [_vm._v("(" + _vm._s(subIndex + 1) + ")")]), _vm._v(" Option")]), _vm._v(" "), _c("input", {
+        directives: [{
+          name: "model",
+          rawName: "v-model",
+          value: subInputField.text,
+          expression: "subInputField.text"
+        }],
+        staticClass: "quiz-element-option input-text",
+        attrs: {
+          type: "text",
+          placeholder: "Option"
+        },
+        domProps: {
+          value: subInputField.text
+        },
+        on: {
+          input: function input($event) {
+            if ($event.target.composing) return;
+            _vm.$set(subInputField, "text", $event.target.value);
+          }
+        }
+      })])]);
+    }), _vm._v(" "), _c("button", {
+      staticClass: "btn btn-primary",
+      on: {
+        click: function click($event) {
+          return _vm.addSubInputField(index);
+        }
+      }
+    }, [_vm._v("Add option")]), _vm._v(" "), _c("div", [_c("div", {
+      staticClass: "mt-2 mb-2"
+    }, [_c("label", [_vm._v("Select correct answer")]), _vm._v(" "), _c("select", {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: inputField.selectedOption,
+        expression: "inputField.selectedOption"
+      }],
+      on: {
+        change: function change($event) {
+          var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
+            return o.selected;
+          }).map(function (o) {
+            var val = "_value" in o ? o._value : o.value;
+            return val;
+          });
+          _vm.$set(inputField, "selectedOption", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
+        }
+      }
+    }, _vm._l(inputField.subInputFields, function (subInputField, subIndex) {
+      return _c("option", {
+        key: subIndex,
+        domProps: {
+          value: subIndex
+        }
+      }, [_vm._v("\n                        " + _vm._s(subInputField.text) + "\n                    ")]);
+    }), 0)])])], 2);
+  }), _vm._v(" "), _c("button", {
+    staticClass: "btn btn-primary mt-2",
+    on: {
+      click: _vm.addInputField
+    }
+  }, [_vm._v("Add section")]), _vm._v(" "), _c("button", {
+    staticClass: "btn btn-success mt-2",
+    attrs: {
+      type: "button"
+    },
+    on: {
+      click: _vm.saveColletedData
+    }
+  }, [_vm._v("Update")]), _vm._v(" "), _c("hr", {
+    staticClass: "mt-2"
+  }), _vm._v(" "), _c("div", [_c("h2", {
+    staticClass: "mt-2 mb-2 font-bold"
+  }, [_vm._v("Participants "), _c("i", [_vm._v("(" + _vm._s(_vm.answers.length) + ")")])]), _vm._v(" "), _c("div", [_c("a", {
+    attrs: {
+      href: "#"
+    },
+    on: {
+      click: _vm.createTextFile
+    }
+  }, [_c("u", [_vm._v("Download list with participant details")])])])])], 2);
 };
 var staticRenderFns = [];
 render._withStripped = true;
