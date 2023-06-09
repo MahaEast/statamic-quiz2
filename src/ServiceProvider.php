@@ -11,9 +11,6 @@ class ServiceProvider extends AddonServiceProvider
     {
         //
     }
-    protected $routes = [
-        'cp' => __DIR__.'/../routes/cp.php',
-    ];
 
     protected $actions = [
         QuizAddonField::class
