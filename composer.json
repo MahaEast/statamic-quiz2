@@ -16,6 +16,7 @@
     ],
     "minimum-stability": "alpha",
     "extra": {
+        "class": "Tv2east\\Quiz\\ServiceProvider",
         "statamic": {
             "name": "Statamic quiz-addon",
             "description": "Statamic quiz-addon"
@@ -28,3 +29,4 @@
     },
     "require": {}
 }
+
