@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "TV2East\\StatamicQuiz2\\": "src/"
+            "Tv2east\\Quiz\\": "src/"
         }
     },
     "require": {
@@ -26,7 +26,7 @@
         },
         "laravel": {
             "providers": [
-                "TV2East\\StatamicQuiz2\\ServiceProvider"
+                "Tv2east\\Quiz\\ServiceProvider"
             ]
         }
     }
