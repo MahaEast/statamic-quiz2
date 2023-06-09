@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Tv2east\\Quiz\\": "src/"
+            "Tv2east\\Quizaddon\\": "src/"
         }
     },
     "require": {
@@ -19,14 +19,14 @@
     ],
     "minimum-stability": "alpha",
     "extra": {
-        "class": "Statamic\\Addons\\Quiz\\ServiceProvider",
+        "class": "Tv2east\\Quizaddon\\ServiceProvider",
         "statamic": {
             "name": "Statamic quiz-addon",
             "description": "Statamic quiz-addon"
         },
         "laravel": {
             "providers": [
-                "Tv2east\\Quiz\\ServiceProvider"
+                "Tv2east\\Quizaddon\\ServiceProvider"
             ]
         }
     }
